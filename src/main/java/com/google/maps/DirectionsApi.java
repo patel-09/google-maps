@@ -59,7 +59,7 @@ public class DirectionsApi {
    * @return A newly constructed DirectionsApiRequest between the given points.
    */
   public static DirectionsApiRequest getDirections(
-      GeoApiContext context, String origin, String destination) {
+          GeoApiContext context, String origin, String destination) {
     return new DirectionsApiRequest(context).origin(origin).destination(destination);
   }
 

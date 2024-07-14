@@ -29,7 +29,7 @@ import java.time.Instant;
 
 /** Request for the Directions API. */
 public class DirectionsApiRequest
-    extends PendingResultBase<DirectionsResult, DirectionsApiRequest, DirectionsApi.Response> {
+        extends PendingResultBase<DirectionsResult, DirectionsApiRequest, DirectionsApi.Response> {
 
   public DirectionsApiRequest(GeoApiContext context) {
     super(context, DirectionsApi.API_CONFIG, DirectionsApi.Response.class);
@@ -48,11 +48,11 @@ public class DirectionsApiRequest
     }
     if (params().containsKey("arrival_time") && params().containsKey("departure_time")) {
       throw new IllegalArgumentException(
-          "Transit request must not contain both a departureTime and an arrivalTime");
+              "Transit request must not contain both a departureTime and an arrivalTime");
     }
     if (params().containsKey("traffic_model") && !params().containsKey("departure_time")) {
       throw new IllegalArgumentException(
-          "Specifying a traffic model requires that departure time be provided.");
+              "Specifying a traffic model requires that departure time be provided.");
     }
   }
 
@@ -88,9 +88,6 @@ public class DirectionsApiRequest
    * @param originPlaceId The starting location Place ID for the Directions request.
    * @return Returns this {@code DirectionsApiRequest} for call chaining.
    */
-  public DirectionsApiRequest originPlaceId(String originPlaceId) {
-    return param("origin", prefixPlaceId(originPlaceId));
-  }
 
   /**
    * The Place ID value from which you wish to calculate directions.
@@ -98,9 +95,6 @@ public class DirectionsApiRequest
    * @param destinationPlaceId The ending location Place ID for the Directions request.
    * @return Returns this {@code DirectionsApiRequest} for call chaining.
    */
-  public DirectionsApiRequest destinationPlaceId(String destinationPlaceId) {
-    return param("destination", prefixPlaceId(destinationPlaceId));
-  }
 
   /**
    * The origin, as a latitude/longitude location.
@@ -168,10 +162,6 @@ public class DirectionsApiRequest
    * @param time The arrival time to calculate directions for.
    * @return Returns this {@code DirectionsApiRequest} for call chaining.
    */
-  public DirectionsApiRequest arrivalTime(Instant time) {
-    return param("arrival_time", Long.toString(time.toEpochMilli() / 1000L));
-  }
-
   /**
    * Set the departure time for a transit or driving directions request. If both departure time and
    * traffic model are not provided, then "now" is assumed. If traffic model is supplied, then
@@ -192,9 +182,6 @@ public class DirectionsApiRequest
    *
    * @return Returns this {@code DirectionsApiRequest} for call chaining.
    */
-  public DirectionsApiRequest departureTimeNow() {
-    return param("departure_time", "now");
-  }
 
   /**
    * Specifies a list of waypoints. Waypoints alter a route by routing it through the specified
@@ -229,7 +216,7 @@ public class DirectionsApiRequest
    * Specifies the list of waypoints as String addresses. If any of the Strings are Place IDs, you
    * must prefix them with {@code place_id:}.
    *
-   * <p>See {@link #prefixPlaceId(String)}.
+   * <p>See .
    *
    * <p>See {@link #waypoints(Waypoint...)}.
    *
@@ -254,13 +241,6 @@ public class DirectionsApiRequest
    * @param waypoints The waypoints to add to this directions request.
    * @return Returns this {@code DirectionsApiRequest} for call chaining.
    */
-  public DirectionsApiRequest waypointsFromPlaceIds(String... waypoints) {
-    Waypoint[] objWaypoints = new Waypoint[waypoints.length];
-    for (int i = 0; i < waypoints.length; i++) {
-      objWaypoints[i] = new Waypoint(prefixPlaceId(waypoints[i]));
-    }
-    return waypoints(objWaypoints);
-  }
 
   /**
    * The list of waypoints as latitude/longitude locations.
@@ -302,13 +282,6 @@ public class DirectionsApiRequest
    * @param alternateRoutes whether to return alternate routes.
    * @return Returns this {@code DirectionsApiRequest} for call chaining.
    */
-  public DirectionsApiRequest alternatives(boolean alternateRoutes) {
-    if (alternateRoutes) {
-      return param("alternatives", "true");
-    } else {
-      return param("alternatives", "false");
-    }
-  }
 
   /**
    * Specifies one or more preferred modes of transit. This parameter may only be specified for
@@ -346,12 +319,8 @@ public class DirectionsApiRequest
   /**
    * Helper method for prefixing a Place ID, as specified by the API.
    *
-   * @param placeId The Place ID to be prefixed.
    * @return Returns the Place ID prefixed with {@code place_id:}.
    */
-  public String prefixPlaceId(String placeId) {
-    return "place_id:" + placeId;
-  }
 
   public static class Waypoint {
     /** The location of this waypoint, expressed as an API-recognized location. */
