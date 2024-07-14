@@ -1,18 +1,3 @@
-/*
- * Copyright 2015 Google Inc. All rights reserved.
- *
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
- * file except in compliance with the License. You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
- * ANY KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 package com.google.maps.internal;
 
 import com.google.gson.TypeAdapter;
@@ -20,7 +5,10 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.maps.model.PriceLevel;
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class handles conversion from JSON to {@link PriceLevel}.
@@ -31,6 +19,15 @@ import java.io.IOException;
  */
 public class PriceLevelAdapter extends TypeAdapter<PriceLevel> {
 
+  private static final Map<Integer, PriceLevel> PRICE_LEVEL_MAP = new HashMap<>();
+  static {
+    PRICE_LEVEL_MAP.put(0, PriceLevel.FREE);
+    PRICE_LEVEL_MAP.put(1, PriceLevel.INEXPENSIVE);
+    PRICE_LEVEL_MAP.put(2, PriceLevel.MODERATE);
+    PRICE_LEVEL_MAP.put(3, PriceLevel.EXPENSIVE);
+    PRICE_LEVEL_MAP.put(4, PriceLevel.VERY_EXPENSIVE);
+  }
+
   @Override
   public PriceLevel read(JsonReader reader) throws IOException {
     if (reader.peek() == JsonToken.NULL) {
@@ -40,19 +37,7 @@ public class PriceLevelAdapter extends TypeAdapter<PriceLevel> {
 
     if (reader.peek() == JsonToken.NUMBER) {
       int priceLevel = reader.nextInt();
-
-      switch (priceLevel) {
-        case 0:
-          return PriceLevel.FREE;
-        case 1:
-          return PriceLevel.INEXPENSIVE;
-        case 2:
-          return PriceLevel.MODERATE;
-        case 3:
-          return PriceLevel.EXPENSIVE;
-        case 4:
-          return PriceLevel.VERY_EXPENSIVE;
-      }
+      return PRICE_LEVEL_MAP.getOrDefault(priceLevel, PriceLevel.UNKNOWN);
     }
 
     return PriceLevel.UNKNOWN;
