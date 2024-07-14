@@ -252,22 +252,22 @@ abstract class SmoothRateLimiter extends RateLimiter {
     }
 
     @Override
-    long storedPermitsToWaitTime(double storedPermits, double permitsToTake) {
-      double availablePermitsAboveThreshold = storedPermits - thresholdPermits;
-      long micros = 0;
-      // measuring the integral on the right part of the function (the climbing line)
-      if (availablePermitsAboveThreshold > 0.0) {
-        double permitsAboveThresholdToTake = min(availablePermitsAboveThreshold, permitsToTake);
-        double length =
-            permitsToTime(availablePermitsAboveThreshold)
-                + permitsToTime(availablePermitsAboveThreshold - permitsAboveThresholdToTake);
-        micros = (long) (permitsAboveThresholdToTake * length / 2.0);
-        permitsToTake -= permitsAboveThresholdToTake;
+    long calculateWaitTime(double stored, double toTake) {
+      double aboveThreshold = stored - thresholdPermits;
+      long waitTimeMicros = 0;
+      // Measure the integral on the right part of the function (the climbing line)
+      if (aboveThreshold > 0.0) {
+        double takeAbove = Math.min(aboveThreshold, toTake);
+        double length = permitsToTime(aboveThreshold)
+                + permitsToTime(aboveThreshold - takeAbove);
+        waitTimeMicros = (long) (takeAbove * length / 2.0);
+        toTake -= takeAbove;
       }
-      // measuring the integral on the left part of the function (the horizontal line)
-      micros += (long) (stableIntervalMicros * permitsToTake);
-      return micros;
+      // Measure the integral on the left part of the function (the horizontal line)
+      waitTimeMicros += (long) (stableIntervalMicros * toTake);
+      return waitTimeMicros;
     }
+
 
     private double permitsToTime(double permits) {
       return stableIntervalMicros + permits * slope;
@@ -310,7 +310,7 @@ abstract class SmoothRateLimiter extends RateLimiter {
     }
 
     @Override
-    long storedPermitsToWaitTime(double storedPermits, double permitsToTake) {
+    long calculateWaitTime(double storedPermits, double permitsToTake) {
       return 0L;
     }
 
@@ -369,7 +369,7 @@ abstract class SmoothRateLimiter extends RateLimiter {
     double storedPermitsToSpend = min(requiredPermits, this.storedPermits);
     double freshPermits = requiredPermits - storedPermitsToSpend;
     long waitMicros =
-        storedPermitsToWaitTime(this.storedPermits, storedPermitsToSpend)
+            calculateWaitTime(this.storedPermits, storedPermitsToSpend)
             + (long) (freshPermits * stableIntervalMicros);
 
     this.nextFreeTicketMicros = LongMath.saturatedAdd(nextFreeTicketMicros, waitMicros);
@@ -384,7 +384,7 @@ abstract class SmoothRateLimiter extends RateLimiter {
    *
    * <p>This always holds: {@code 0 <= permitsToTake <= storedPermits}
    */
-  abstract long storedPermitsToWaitTime(double storedPermits, double permitsToTake);
+  abstract long calculateWaitTime(double storedPermits, double permitsToTake);
 
   /**
    * Returns the number of microseconds during cool down that we have to wait to get a new permit.

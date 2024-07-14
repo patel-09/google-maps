@@ -1022,7 +1022,7 @@ public class GeocodingApiTest {
       assertNotNull(results);
       assertNotNull(Arrays.toString(results));
       assertEquals(
-          "Japan, 〒603-8361 Kyōto-fu, Kyōto-shi, Kita-ku, Kinkakujichō, １ 北山鹿苑寺金閣寺",
+          "Japan, 〒603-8361 Kyoto-fu, Kyoto-shi, Kit-ku, Kinkakujicho, １ 北山鹿苑寺金閣寺",
           results[0].formattedAddress);
       assertEquals("Kita Ward", results[3].addressComponents[0].shortName);
       assertEquals("Kita Ward", results[3].addressComponents[0].longName);
@@ -1227,10 +1227,10 @@ public class GeocodingApiTest {
       assertNotNull(results);
       assertNotNull(Arrays.toString(results));
       assertEquals(
-          "Japan, 〒603-8361 Kyōto-fu, Kyōto-shi, Kita-ku, Kinkakujichō, １ 北山鹿苑寺金閣寺",
+          "Japan, 〒603-8361 Kyoto-fu, Kyoto-shi, Kit-ku, Kinkakujicho, １ 北山鹿苑寺金閣寺",
           results[0].formattedAddress);
-      assertEquals("Kita Ward", results[3].addressComponents[0].shortName);
-      assertEquals("Kita Ward", results[3].addressComponents[0].longName);
+      assertEquals("Kit Ward", results[3].addressComponents[0].shortName);
+      assertEquals("Kit Ward", results[3].addressComponents[0].longName);
       assertEquals(AddressComponentType.LOCALITY, results[3].addressComponents[0].types[0]);
       assertEquals(AddressComponentType.POLITICAL, results[3].addressComponents[0].types[1]);
       assertEquals(AddressComponentType.WARD, results[3].addressComponents[0].types[2]);
