@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2016 Google Inc. All rights reserved.
  *
@@ -50,60 +51,60 @@ public class GaeRequestHandler implements GeoApiContext.RequestHandler {
 
   @Override
   public <T, R extends ApiResponse<T>> PendingResult<T> handle(
-      String hostName,
-      String url,
-      Map<String, String> headers,
-      Class<R> clazz,
-      FieldNamingPolicy fieldNamingPolicy,
-      long errorTimeout,
-      Integer maxRetries,
-      ExceptionsAllowedToRetry exceptionsAllowedToRetry,
-      RequestMetrics metrics) {
+          String hostName,
+          String url,
+          Map<String, String> headers,
+          Class<R> clazz,
+          FieldNamingPolicy fieldNamingPolicy,
+          long errorTimeout,
+          Integer maxRetries,
+          ExceptionsAllowedToRetry exceptionsAllowedToRetry,
+          RequestMetrics metrics) {
     FetchOptions fetchOptions = FetchOptions.Builder.withDeadline(10);
     final HTTPRequest req;
     try {
       req = new HTTPRequest(new URL(hostName + url), HTTPMethod.POST, fetchOptions);
       headers.forEach(
-          (k, v) -> {
-            req.addHeader(new HTTPHeader(k, v));
-          });
+              (k, v) -> {
+                req.addHeader(new HTTPHeader(k, v));
+              });
     } catch (MalformedURLException e) {
       LOG.error("Request: {}{}", hostName, url, e);
       throw (new RuntimeException(e));
     }
 
     return new GaePendingResult<>(
-        req,
-        client,
-        clazz,
-        fieldNamingPolicy,
-        errorTimeout,
-        maxRetries,
-        exceptionsAllowedToRetry,
-        metrics);
+            req,
+            client,
+            clazz,
+            fieldNamingPolicy,
+            errorTimeout,
+            maxRetries,
+            exceptionsAllowedToRetry,
+            metrics);
   }
 
   @Override
   public <T, R extends ApiResponse<T>> PendingResult<T> handlePost(
-      String hostName,
-      String url,
-      String payload,
-      Map<String, String> headers,
-      Class<R> clazz,
-      FieldNamingPolicy fieldNamingPolicy,
-      long errorTimeout,
-      Integer maxRetries,
-      ExceptionsAllowedToRetry exceptionsAllowedToRetry,
-      RequestMetrics metrics) {
+          String hostName,
+          String url,
+          String payload,
+          Map<String, String> headers,
+          Class<R> clazz,
+          FieldNamingPolicy fieldNamingPolicy,
+          long errorTimeout,
+          Integer maxRetries,
+          ExceptionsAllowedToRetry exceptionsAllowedToRetry,
+          RequestMetrics metrics) {
     FetchOptions fetchOptions = FetchOptions.Builder.withDeadline(10);
     final HTTPRequest req;
     try {
       req = new HTTPRequest(new URL(hostName + url), HTTPMethod.POST, fetchOptions);
       req.setHeader(new HTTPHeader("Content-Type", "application/json; charset=utf-8"));
       headers.forEach(
-          (k, v) -> {
-            req.addHeader(new HTTPHeader(k, v));
-          });
+              (k, v) -> {
+                req.addHeader(new HTTPHeader(k, v));
+              });
       req.setPayload(payload.getBytes(UTF_8));
     } catch (MalformedURLException e) {
       LOG.error("Request: {}{}", hostName, url, e);
@@ -111,14 +112,14 @@ public class GaeRequestHandler implements GeoApiContext.RequestHandler {
     }
 
     return new GaePendingResult<>(
-        req,
-        client,
-        clazz,
-        fieldNamingPolicy,
-        errorTimeout,
-        maxRetries,
-        exceptionsAllowedToRetry,
-        metrics);
+            req,
+            client,
+            clazz,
+            fieldNamingPolicy,
+            errorTimeout,
+            maxRetries,
+            exceptionsAllowedToRetry,
+            metrics);
   }
 
   @Override
@@ -130,32 +131,32 @@ public class GaeRequestHandler implements GeoApiContext.RequestHandler {
   public static class Builder implements GeoApiContext.RequestHandler.Builder {
 
     @Override
-    public Builder connectTimeout(long timeout, TimeUnit unit) {
+    public OkHttpRequestHandler.Builder connectTimeout(long timeout, TimeUnit unit) {
       throw new RuntimeException("connectTimeout not implemented for Google App Engine");
     }
 
     @Override
-    public Builder readTimeout(long timeout, TimeUnit unit) {
+    public OkHttpRequestHandler.Builder readTimeout(long timeout, TimeUnit unit) {
       throw new RuntimeException("readTimeout not implemented for Google App Engine");
     }
 
     @Override
-    public Builder writeTimeout(long timeout, TimeUnit unit) {
+    public OkHttpRequestHandler.Builder writeTimeout(long timeout, TimeUnit unit) {
       throw new RuntimeException("writeTimeout not implemented for Google App Engine");
     }
 
     @Override
-    public Builder queriesPerSecond(int maxQps) {
+    public OkHttpRequestHandler.Builder queriesPerSecond(int maxQps) {
       throw new RuntimeException("queriesPerSecond not implemented for Google App Engine");
     }
 
     @Override
-    public Builder proxy(Proxy proxy) {
+    public OkHttpRequestHandler.Builder proxy(Proxy proxy) {
       throw new RuntimeException("setProxy not implemented for Google App Engine");
     }
 
     @Override
-    public Builder proxyAuthentication(String proxyUserName, String proxyUserPassword) {
+    public OkHttpRequestHandler.Builder proxyAuthentication(String proxyUserName, String proxyUserPassword) {
       throw new RuntimeException("setProxyAuthentication not implemented for Google App Engine");
     }
 

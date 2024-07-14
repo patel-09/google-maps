@@ -54,15 +54,15 @@ public class OkHttpRequestHandler implements GeoApiContext.RequestHandler {
 
   @Override
   public <T, R extends ApiResponse<T>> PendingResult<T> handle(
-      String hostName,
-      String url,
-      Map<String, String> headers,
-      Class<R> clazz,
-      FieldNamingPolicy fieldNamingPolicy,
-      long errorTimeout,
-      Integer maxRetries,
-      ExceptionsAllowedToRetry exceptionsAllowedToRetry,
-      RequestMetrics metrics) {
+          String hostName,
+          String url,
+          Map<String, String> headers,
+          Class<R> clazz,
+          FieldNamingPolicy fieldNamingPolicy,
+          long errorTimeout,
+          Integer maxRetries,
+          ExceptionsAllowedToRetry exceptionsAllowedToRetry,
+          RequestMetrics metrics) {
     Request.Builder builder = new Request.Builder().get();
     for (Entry<String, String> entry : headers.entrySet()) {
       builder = builder.header(entry.getKey(), entry.getValue());
@@ -70,28 +70,28 @@ public class OkHttpRequestHandler implements GeoApiContext.RequestHandler {
     Request req = builder.url(hostName + url).build();
 
     return new OkHttpPendingResult<>(
-        req,
-        client,
-        clazz,
-        fieldNamingPolicy,
-        errorTimeout,
-        maxRetries,
-        exceptionsAllowedToRetry,
-        metrics);
+            req,
+            client,
+            clazz,
+            fieldNamingPolicy,
+            errorTimeout,
+            maxRetries,
+            exceptionsAllowedToRetry,
+            metrics);
   }
 
   @Override
   public <T, R extends ApiResponse<T>> PendingResult<T> handlePost(
-      String hostName,
-      String url,
-      String payload,
-      Map<String, String> headers,
-      Class<R> clazz,
-      FieldNamingPolicy fieldNamingPolicy,
-      long errorTimeout,
-      Integer maxRetries,
-      ExceptionsAllowedToRetry exceptionsAllowedToRetry,
-      RequestMetrics metrics) {
+          String hostName,
+          String url,
+          String payload,
+          Map<String, String> headers,
+          Class<R> clazz,
+          FieldNamingPolicy fieldNamingPolicy,
+          long errorTimeout,
+          Integer maxRetries,
+          ExceptionsAllowedToRetry exceptionsAllowedToRetry,
+          RequestMetrics metrics) {
     RequestBody body = RequestBody.create(payload, JSON);
     Request.Builder builder = new Request.Builder().post(body);
     for (Entry<String, String> entry : headers.entrySet()) {
@@ -100,14 +100,14 @@ public class OkHttpRequestHandler implements GeoApiContext.RequestHandler {
     Request req = builder.url(hostName + url).build();
 
     return new OkHttpPendingResult<>(
-        req,
-        client,
-        clazz,
-        fieldNamingPolicy,
-        errorTimeout,
-        maxRetries,
-        exceptionsAllowedToRetry,
-        metrics);
+            req,
+            client,
+            clazz,
+            fieldNamingPolicy,
+            errorTimeout,
+            maxRetries,
+            exceptionsAllowedToRetry,
+            metrics);
   }
 
   @Override
@@ -129,7 +129,7 @@ public class OkHttpRequestHandler implements GeoApiContext.RequestHandler {
       builder.dispatcher(dispatcher);
 
       final AndroidAuthenticationConfigProvider provider =
-          new AndroidAuthenticationConfigProvider();
+              new AndroidAuthenticationConfigProvider();
       final AndroidAuthenticationConfig config = provider.provide();
       builder.addInterceptor(new AndroidAuthenticationInterceptor(config));
     }
@@ -171,14 +171,14 @@ public class OkHttpRequestHandler implements GeoApiContext.RequestHandler {
       final String userName = proxyUserName;
       final String password = proxyUserPassword;
       builder.proxyAuthenticator(
-          (route, response) -> {
-            String credential = Credentials.basic(userName, password);
-            return response
-                .request()
-                .newBuilder()
-                .header("Proxy-Authorization", credential)
-                .build();
-          });
+              (route, response) -> {
+                String credential = Credentials.basic(userName, password);
+                return response
+                        .request()
+                        .newBuilder()
+                        .header("Proxy-Authorization", credential)
+                        .build();
+              });
       return this;
     }
 
@@ -190,9 +190,6 @@ public class OkHttpRequestHandler implements GeoApiContext.RequestHandler {
      * @return OkHttpClient.Builder that will produce the OkHttpClient used by the
      *     OkHttpRequestHandler built by this.
      */
-    public OkHttpClient.Builder okHttpClientBuilder() {
-      return builder;
-    }
 
     @Override
     public RequestHandler build() {

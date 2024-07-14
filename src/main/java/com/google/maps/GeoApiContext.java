@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
 import java.net.URLEncoder;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -100,7 +98,6 @@ public class GeoApiContext implements Closeable {
   /**
    * standard Java API to reclaim resources
    *
-   * @throws IOException
    */
   @Override
   public void close() throws IOException {
@@ -145,17 +142,17 @@ public class GeoApiContext implements Closeable {
     /** Builder pattern for {@code GeoApiContext.RequestHandler}. */
     interface Builder {
 
-      Builder connectTimeout(long timeout, TimeUnit unit);
+      OkHttpRequestHandler.Builder connectTimeout(long timeout, TimeUnit unit);
 
-      Builder readTimeout(long timeout, TimeUnit unit);
+      OkHttpRequestHandler.Builder readTimeout(long timeout, TimeUnit unit);
 
-      Builder writeTimeout(long timeout, TimeUnit unit);
+      OkHttpRequestHandler.Builder writeTimeout(long timeout, TimeUnit unit);
 
-      Builder queriesPerSecond(int maxQps);
+      OkHttpRequestHandler.Builder queriesPerSecond(int maxQps);
 
-      Builder proxy(Proxy proxy);
+      OkHttpRequestHandler.Builder proxy(Proxy proxy);
 
-      Builder proxyAuthentication(String proxyUserName, String proxyUserPassword);
+      OkHttpRequestHandler.Builder proxyAuthentication(String proxyUserName, String proxyUserPassword);
 
       RequestHandler build();
     }
@@ -307,11 +304,6 @@ public class GeoApiContext implements Closeable {
         requestMetricsReporter.newRequest(config.path));
   }
 
-  <T, R extends ApiResponse<T>> PendingResult<T> post(
-      ApiConfig config, Class<? extends R> clazz, Map<String, List<String>> params) {
-    return post(config, clazz, Collections.emptyMap(), params);
-  }
-
   private <T, R extends ApiResponse<T>> PendingResult<T> getWithPath(
       Class<R> clazz,
       FieldNamingPolicy fieldNamingPolicy,
@@ -379,7 +371,7 @@ public class GeoApiContext implements Closeable {
     private String channel;
     private String clientId;
     private long errorTimeout = DEFAULT_BACKOFF_TIMEOUT_MILLIS;
-    private ExceptionsAllowedToRetry exceptionsAllowedToRetry = new ExceptionsAllowedToRetry();
+    private final ExceptionsAllowedToRetry exceptionsAllowedToRetry = new ExceptionsAllowedToRetry();
     private Integer maxRetries;
     private UrlSigner urlSigner;
     private RequestMetricsReporter requestMetricsReporter = new NoOpRequestMetricsReporter();
@@ -389,30 +381,25 @@ public class GeoApiContext implements Closeable {
       requestHandlerBuilder(new OkHttpRequestHandler.Builder());
     }
 
-    public Builder(RequestHandler.Builder builder) {
-      requestHandlerBuilder(builder);
-    }
 
     /**
      * Changes the RequestHandler.Builder strategy to change between the {@code
      * OkHttpRequestHandler} and the {@code GaeRequestHandler}.
      *
      * @param builder The {@code RequestHandler.Builder} to use for {@link #build()}
-     * @return Returns this builder for call chaining.
      * @see OkHttpRequestHandler
      * @see GaeRequestHandler
      */
-    public Builder requestHandlerBuilder(RequestHandler.Builder builder) {
+    public void requestHandlerBuilder(RequestHandler.Builder builder) {
       this.builder = builder;
       this.exceptionsAllowedToRetry.add(OverQueryLimitException.class);
-      return this;
     }
 
     /**
      * Overrides the base URL of the API endpoint. Useful for testing or certain international usage
      * scenarios.
      *
-     * @param baseUrl The URL to use, without a trailing slash, e.g. https://maps.googleapis.com
+     * @param baseUrl The URL to use, without a trailing slash, e.g. <a href="https://maps.googleapis.com">...</a>
      * @return Returns this builder for call chaining.
      */
     public Builder baseUrlOverride(String baseUrl) {
@@ -425,7 +412,7 @@ public class GeoApiContext implements Closeable {
      * use case foreseen for this.
      *
      * @deprecated Use baseUrlOverride(String) instead.
-     * @param baseUrl The URL to use, without a trailing slash, e.g. https://maps.googleapis.com
+     * @param baseUrl The URL to use, without a trailing slash, e.g. <a href="https://maps.googleapis.com">...</a>
      * @return Returns this builder for call chaining.
      */
     @Deprecated
@@ -441,74 +428,6 @@ public class GeoApiContext implements Closeable {
      */
     public Builder apiKey(String apiKey) {
       this.apiKey = apiKey;
-      return this;
-    }
-
-    /**
-     * Sets the ClientID/Secret pair to use for authorizing requests. Most users should use {@link
-     * #apiKey(String)} instead.
-     *
-     * @param clientId The Client ID to use.
-     * @param cryptographicSecret The Secret to use.
-     * @return Returns this builder for call chaining.
-     */
-    public Builder enterpriseCredentials(String clientId, String cryptographicSecret) {
-      this.clientId = clientId;
-      try {
-        this.urlSigner = new UrlSigner(cryptographicSecret);
-      } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-        throw new IllegalStateException(e);
-      }
-      return this;
-    }
-
-    /**
-     * Sets the default channel for requests (can be overridden by requests). Only useful for Google
-     * Maps for Work clients.
-     *
-     * @param channel The channel to use for analytics
-     * @return Returns this builder for call chaining.
-     */
-    public Builder channel(String channel) {
-      this.channel = channel;
-      return this;
-    }
-
-    /**
-     * Sets the default connect timeout for new connections. A value of 0 means no timeout.
-     *
-     * @see java.net.URLConnection#setConnectTimeout(int)
-     * @param timeout The connect timeout period in {@code unit}s.
-     * @param unit The connect timeout time unit.
-     * @return Returns this builder for call chaining.
-     */
-    public Builder connectTimeout(long timeout, TimeUnit unit) {
-      builder.connectTimeout(timeout, unit);
-      return this;
-    }
-
-    /**
-     * Sets the default read timeout for new connections. A value of 0 means no timeout.
-     *
-     * @see java.net.URLConnection#setReadTimeout(int)
-     * @param timeout The read timeout period in {@code unit}s.
-     * @param unit The read timeout time unit.
-     * @return Returns this builder for call chaining.
-     */
-    public Builder readTimeout(long timeout, TimeUnit unit) {
-      builder.readTimeout(timeout, unit);
-      return this;
-    }
-
-    /**
-     * Sets the default write timeout for new connections. A value of 0 means no timeout.
-     *
-     * @param timeout The write timeout period in {@code unit}s.
-     * @param unit The write timeout time unit.
-     * @return Returns this builder for call chaining.
-     */
-    public Builder writeTimeout(long timeout, TimeUnit unit) {
-      builder.writeTimeout(timeout, unit);
       return this;
     }
 
@@ -543,17 +462,14 @@ public class GeoApiContext implements Closeable {
 
     /**
      * Disables retries completely, by setting max retries to 0 and retry timeout to 0.
-     *
-     * @return Returns this builder for call chaining.
      */
-    public Builder disableRetries() {
+    public void disableRetries() {
       maxRetries(0);
       retryTimeout(0, TimeUnit.MILLISECONDS);
-      return this;
     }
 
     /**
-     * Sets the maximum number of queries that will be executed during a 1 second interval. The
+     * Sets the maximum number of queries that will be executed during a 1-second interval. The
      * default is 50. A minimum interval between requests will also be enforced, set to 1/(2 *
      * {@code maxQps}).
      *
@@ -568,42 +484,23 @@ public class GeoApiContext implements Closeable {
     /**
      * Allows specific API exceptions to be retried or not retried.
      *
-     * @param exception The {@code ApiException} to allow or deny being re-tried.
+     * @param exception      The {@code ApiException} to allow or deny being re-tried.
      * @param allowedToRetry Whether to allow or deny re-trying {@code exception}.
-     * @return Returns this builder for call chaining.
      */
-    public Builder setIfExceptionIsAllowedToRetry(
+    public void setIfExceptionIsAllowedToRetry(
         Class<? extends ApiException> exception, boolean allowedToRetry) {
       if (allowedToRetry) {
         exceptionsAllowedToRetry.add(exception);
       } else {
         exceptionsAllowedToRetry.remove(exception);
       }
-      return this;
     }
-
-    /**
-     * Sets the proxy for new connections.
-     *
-     * @param proxy The proxy to be used by the underlying HTTP client.
-     * @return Returns this builder for call chaining.
-     */
-    public Builder proxy(Proxy proxy) {
-      builder.proxy(proxy == null ? Proxy.NO_PROXY : proxy);
-      return this;
-    }
-
     /**
      * set authentication for proxy
      *
-     * @param proxyUserName username for proxy authentication
-     * @param proxyUserPassword username for proxy authentication
+     * @param requestMetricsReporter username for proxy authentication
      * @return Returns this builder for call chaining.
      */
-    public Builder proxyAuthentication(String proxyUserName, String proxyUserPassword) {
-      builder.proxyAuthentication(proxyUserName, proxyUserPassword);
-      return this;
-    }
 
     public Builder requestMetricsReporter(RequestMetricsReporter requestMetricsReporter) {
       this.requestMetricsReporter = requestMetricsReporter;
