@@ -319,7 +319,7 @@ public class DirectionsApiRequest
   /**
    * Helper method for prefixing a Place ID, as specified by the API.
    *
-   * @return Returns the Place ID prefixed with {@code place_id:}.
+//   * @return Returns the Place ID prefixed with {@code place_id:}.
    */
 
   public static class Waypoint {
